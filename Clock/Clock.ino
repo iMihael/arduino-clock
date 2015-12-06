@@ -13,12 +13,17 @@
 Digit d;
 DS3231 rtc(SDA, SCL);
 
-int alarmH = 19;
-int alarmM = 30;
+uint8_t alarmH = 23;
+uint8_t alarmM = 9;
+
+bool alarm = false;
+bool beep = true;
 
 void setup() {
 	Serial.begin(9600);
 	rtc.begin();
+	pinMode(6, INPUT);
+	
 
 	/*rtc.setDate(6, 12, 2015);
 	rtc.setTime(18, 13, 00);
@@ -29,8 +34,18 @@ void loop() {
 	Time t = rtc.getTime();
 	d.setTime(t.hour, t.min);
 	
-	if (t.hour == alarmH && t.min == alarmM) {
-		d.playMelody();
+	if  ( (t.hour == alarmH && t.min == alarmM ) || alarm) {
+		alarm = true;
+		if (d.playMelody()) {
+			alarm = false;
+			//TODO: fix this bug
+			delay(60000);
+		}
 	}
+
+	if (beep && t.min == 0) {
+		d.beep();
+	}
+
 	d.blink(t.sec);
 }

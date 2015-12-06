@@ -21,40 +21,26 @@ const int Digit::nums[11][7] = {
 	{ 0, 0, 0, 0, 0, 0, 0 } // clear
 };
 
-const int Digit::melodies[2][98] = {
+const int Digit::melodies[2][84] = {
 	{
-		NG4,NE5,ND5,NC5,NG4,NG4,NE5,ND5,NC5,NA4,
-		NA4,NF5,NE5,ND5,NB4,NG5,NG5,NF5,ND5,NE5,
-	NG4,NE5,ND5,NC5,NG4,NG4,NE5,ND5,NC5,NA4,
-	NA4,NF5,NE5,ND5,NG5,NG5,NG5,NG5,NG5,NA5,NG5,NF5,ND5,NC5,NG5,
-	NE5,NE5,NE5,NE5,NE5,NE5,NE5,NG5,NC5,ND5,NE5,
-	NF5,NF5,NF5,NF5,NF5,NF5,NE5,NE5,NE5,NE5,NE5,ND5,ND5,NE5,ND5,NG5,
-	NE5,NE5,NE5,NE5,NE5,NE5,NE5,NG5,NC5,ND5,NE5,
-	NF5,NF5,NF5,NF5,NF5,NF5,NE5,NE5,NE5,NE5,NG5,NG5,NF5,ND5,NC5,
-	},
-	{
-		NG4,NC5,NC5,ND5,NC5,NB4,NA4,NA4,
-		NA4,ND5,ND5,NE5,ND5,NC5,NB4,NG4,
+	NG4,NC5,NC5,ND5,NC5,NB4,NA4,NA4,
+	NA4,ND5,ND5,NE5,ND5,NC5,NB4,NG4,
 	NG4,NE5,NE5,NF5,NE5,ND5,NC5,NA5,NG4,NG4,NA4,ND5,NB4,NC5,
 	NG4,NC5,NC5,ND5,NC5,NB4,NA4,NA4,
 	NA4,ND5,ND5,NE5,ND5,NC5,NB4,NG4,
 	NG4,NE5,NE5,NF5,NE5,ND5,NC5,NA5,NG4,NG4,NA4,ND5,NB4,NC5,
 	NG4,NC5,NC5,NC5,NB4,NB4,NC5,NB4,NA4,NG4,
 	ND5,NE5,ND5,ND5,NC5,NC5,NG5,NG4,NG4,NG4,NA4,ND5,NB4,NC5
+	},
+	{
+		NB5,0,NB5,0,NB5,NA5,NB5,NB5,NB5,NB5,NB5,NB5,NC6,NB5,NA5,
+		NB5,0,NB5,0,NB5,NA5,NFS5,NFS5,NFS5,NG5,NG5,NG5,NGS5,NGS5,NGS5,NA5,NAS5,
+	NB5,0,NB5,0,NB5,NA5,NB5,NB5,NB5,NB5,NB5,NB5,NC6,NB5,NA5,
+	NB5,0,NB5,0,NB5,NA5,NFS5,NFS5,NFS5,NG5,NG5,NG5,NGS5,NGS5,NGS5,NA5,NAS5
 	}
 };
 
-const int Digit::durations[2][98] = {
-	{
-		8,8,8,8,2,8,8,8,8,2, // 10
-		8,8,8,8,2,8,8,8,8,2, // 10
-	8,8,8,8,2,8,8,8,8,2, // 10
-	8,8,8,8,8,8,8,16,16,8,8,8,8,4,4, // 15
-	8,8,4,8,8,4,8,8,8,8,2, // 11
-	8,8,8,16,16,8,8,8,16,16,8,8,8,8,4,4, // 16
-	8,8,4,8,8,4,8,8,8,8,2, // 11
-	8,8,8,16,16,8,8,8,16,16,8,8,8,8,2, // 15
-	},
+const int Digit::durations[2][84] = {
 	{
 		4,4,8,8,8,8,4,4,
 		4,4,8,8,8,8,4,4,
@@ -64,8 +50,14 @@ const int Digit::durations[2][98] = {
 	4,4,8,8,8,8,4,4,8,8,4,4,4,2,
 	4,4,4,4,2,4,4,4,4,2,
 	4,4,8,8,8,8,4,4,8,8,4,4,4,2,
+	},
+	{
+		8,4,8,4,8,8,8,16,16,8,8,8,8,8,8, // 15
+		8,4,8,4,8,8,8,16,16,8,16,16,8,16,16,8,8, // 17
+	8,4,8,4,8,8,8,16,16,8,8,8,8,8,8, // 15
+	8,4,8,4,8,8,8,16,16,8,16,16,8,16,16,8,8 // 17
 	}
-
+	
 };
 
 Digit::~Digit() {
@@ -105,25 +97,37 @@ void Digit::setTime(int h, int m) {
 	}
 }
 
-void Digit::playMelody() {
+void Digit::beep() {
+	tone(5, 1000, 400);
+}
 
-	for (int i = 0; i < 2; i++) {
-		for (int thisNote = 0; thisNote < 98; thisNote++) {
+bool Digit::playMelody() {
 
-			// to calculate the note duration, take one second
-			// divided by the note type.
-			//e.g. quarter note = 1000 / 4, eighth note = 1000/8, etc.
-			int noteDuration = 1000 / Digit::durations[i][thisNote];
-			tone(5, Digit::melodies[i][thisNote], noteDuration);
+	int i = 1;
+	for (int thisNote = 0; thisNote < 84; thisNote++) {
 
-			// to distinguish the notes, set a minimum time between them.
-			// the note's duration + 30% seems to work well:
-			int pauseBetweenNotes = noteDuration * 1.30;
-			delay(pauseBetweenNotes);
-			// stop the tone playing:
-			noTone(5);
+		if (digitalRead(6)) {
+			return true;
 		}
+
+		if (Digit::durations[i][thisNote] == -1) {
+			break;
+		}
+		// to calculate the note duration, take one second
+		// divided by the note type.
+		//e.g. quarter note = 1000 / 4, eighth note = 1000/8, etc.
+		int noteDuration = 1000 / Digit::durations[i][thisNote];
+		tone(5, Digit::melodies[i][thisNote], noteDuration);
+
+		// to distinguish the notes, set a minimum time between them.
+		// the note's duration + 30% seems to work well:
+		int pauseBetweenNotes = noteDuration * 1.30;
+		delay(pauseBetweenNotes);
+		// stop the tone playing:
+		noTone(5);
 	}
+	
+	return false;
 }
 
 

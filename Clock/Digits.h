@@ -20,16 +20,17 @@ private:
 
 	ShiftRegister74HC595 * sr;
 
-	static const int melodies[2][98];
-	static const int durations[2][98];
+	static const int melodies[2][84];
+	static const int durations[2][84];
 		
 public:
 	Digit();
 	~Digit();
 	void setNum(int digit, int num);
 	void setTime(int h, int m);
-	void playMelody();
+	bool playMelody();
 	void blink(uint8_t second);
+	void beep();
 };
 
 

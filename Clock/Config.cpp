@@ -1,6 +1,7 @@
 #include "Config.h"
 #include <EEPROM.h>
 Config::Config() {
+
 	this->alarm = false;
 
 	this->alarmH = EEPROM.read(ALARM_H_EEPROM);
@@ -9,16 +10,23 @@ Config::Config() {
 	//TODO: implement beep period
 	this->beep = EEPROM.read(BEEP_EEPROM);
 	
-
-	this->bt = new SoftwareSerial(8, 9);
+	this->bt = new SoftwareSerial(8, 9); // RX, TX
 	this->bt->begin(9600);
+
+	this->rtc = new DS3231(SDA, SCL);
+	this->rtc->begin();
+
 }
 
 Config::~Config() {
 	delete this->bt;
 }
 
-void Config::worker(Time & t, Digit & d) {
+void Config::worker() {
+
+	Time t = this->rtc->getTime();
+	this->d.setTime(t.hour, t.min);
+	d.blink(t.sec);
 
 	if ((t.hour == this->alarmH && t.min == this->alarmM) || this->alarm) {
 		this->alarm = true;
@@ -49,42 +57,48 @@ void Config::worker(Time & t, Digit & d) {
 
 }
 
-void Config::sendData(String str) {
-	Serial.println(str);
-	this->bt->println(str);
+void Config::sendData(String str, bool newLine) {
+	if (newLine) {
+		Serial.println(str);
+		this->bt->println(str);
+	}
+	else {
+		Serial.print(str);
+		this->bt->print(str);
+	}
 }
 
 void Config::parseSerial(char c) {
 	if (c == '\n') {
-		JsonObject& root = jsonBuffer.parseObject(command);
-		String cnf = root["config"].asString();
-
-		if (cnf == "setAlarm") {
-			this->setAlarm(root);
-		}
-		else if(cnf == "getAlarm") {
+		if (command == "getAlarm") {
 			this->sendAlarm();
 		}
+		else if (command.substring(0, 8) == "setAlarm") {
+			int idx = command.lastIndexOf(':');
+			this->setAlarm(command.substring(9, idx).toInt(), command.substring(idx + 1).toInt());
+		}
+		else if (command == "getTime") {
+			this->sendTime();
+		}
 
-		command = "";
+		this->command = "";
+		
 	} else {
 		this->command += c;
 	}
 }
 
-void Config::sendAlarm() {
-	JsonObject& root = jsonBuffer.createObject();
-	root["config"] = "getAlarm";
-	root["hour"] = this->alarmH;
-	root["minute"] = this->alarmM;
-	String t;
-	root.printTo(t);
-	this->sendData(t);
+void Config::sendTime() {
+	this->sendData(this->rtc->getTimeStr());
 }
 
-void Config::setAlarm(JsonObject& root) {
-	this->alarmH = root["hour"];
-	this->alarmM = root["minute"];
+void Config::sendAlarm() {
+	this->sendData(String(this->alarmH) + ":" + String(this->alarmM));
+}
+
+void Config::setAlarm(uint8_t hour, uint8_t minute) {
+	this->alarmH = hour;
+	this->alarmM = minute;
 
 	EEPROM.write(ALARM_H_EEPROM, this->alarmH);
 	EEPROM.write(ALARM_M_EEPROM, this->alarmM);

@@ -5,8 +5,8 @@
 
 #include <DS3231.h>
 #include "Digits.h"
-#include <ArduinoJson.h>
 #include <SoftwareSerial.h>
+
 
 class Config {
 private:
@@ -15,18 +15,23 @@ private:
 	uint8_t alarmH;
 	uint8_t alarmM;
 	String command;
-	StaticJsonBuffer<200> jsonBuffer;
 
 	void parseSerial(char c);
-	void setAlarm(JsonObject& root);
+	void sendData(String str, bool newLine = true);
+
+	void setAlarm(uint8_t hour, uint8_t minute);
 	void sendAlarm();
-	void sendData(String str);
-	
+	void sendTime();
+	//void setTime(uint8_t hour, uint8_t minute);
+
+	Digit d;
+	DS3231 * rtc;
+
 public:
 	SoftwareSerial * bt;// (8, 9); // RX, TX
 	Config();
 	~Config();
-	void worker(Time & t, Digit & d);
+	void worker();
 };
 
 

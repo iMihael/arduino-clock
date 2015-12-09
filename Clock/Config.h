@@ -22,7 +22,7 @@ private:
 	void setAlarm(uint8_t hour, uint8_t minute);
 	void sendAlarm();
 	void sendTime();
-	//void setTime(uint8_t hour, uint8_t minute);
+	void setTime(uint8_t hour, uint8_t minute);
 
 	Digit d;
 	DS3231 * rtc;

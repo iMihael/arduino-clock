@@ -80,12 +80,22 @@ void Config::parseSerial(char c) {
 		else if (command == "getTime") {
 			this->sendTime();
 		}
+		else if (command.substring(0, 7) == "setTime") {
+			int idx = command.lastIndexOf(':');
+			this->setTime(command.substring(8, idx).toInt(), command.substring(idx + 1).toInt());
+		}
+
 
 		this->command = "";
 		
 	} else {
 		this->command += c;
 	}
+}
+
+void Config::setTime(uint8_t hour, uint8_t minute) {
+	this->rtc->setTime(hour, minute, 0);
+	this->sendTime();
 }
 
 void Config::sendTime() {

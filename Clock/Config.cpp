@@ -7,6 +7,9 @@ Config::Config() {
 
 	this->alarmH = EEPROM.read(ALARM_H_EEPROM);
 	this->alarmM = EEPROM.read(ALARM_M_EEPROM);
+	this->alarmEnabled = EEPROM.read(ALARM_ENABLED);
+	this->alarmMelody = EEPROM.read(ALARM_MELODY);
+
 	this->beepStart = EEPROM.read(BEEP_START);
 	this->beepEnd = EEPROM.read(BEEP_END);
 
@@ -37,25 +40,27 @@ void Config::worker() {
 
 	d.blink(t.sec);
 	
-	if ((t.hour == this->alarmH && t.min == this->alarmM) || this->alarm) {
-		this->alarm = true;
+	if (this->alarmEnabled) {
+		if ((t.hour == this->alarmH && t.min == this->alarmM) || this->alarm) {
+			this->alarm = true;
 
-		if (d.playMelody()) {
-			this->alarm = false;
-			//TODO: fix this bug
-			if (t.min == this->alarmM) {
-				delay(60000);
-			}
-		}
-
-		if (alarmStart == 0) {
-			alarmStart = this->rtc->getUnixTime(t);
-		}
-		else {
-			uint16_t diff = this->rtc->getUnixTime(t) - alarmStart;
-			if (diff > 600) {
-				this->alarmStart = 0;
+			if (d.playMelody(this->alarmMelody)) {
 				this->alarm = false;
+				//TODO: fix this bug
+				if (t.min == this->alarmM) {
+					delay(60000);
+				}
+			}
+
+			if (alarmStart == 0) {
+				alarmStart = this->rtc->getUnixTime(t);
+			}
+			else {
+				uint16_t diff = this->rtc->getUnixTime(t) - alarmStart;
+				if (diff > 600) {
+					this->alarmStart = 0;
+					this->alarm = false;
+				}
 			}
 		}
 	}
@@ -96,7 +101,8 @@ void Config::parseSerial(char c) {
 		}
 		else if (command.substring(0, 8) == "setAlarm") {
 			int idx = command.lastIndexOf(':');
-			this->setAlarm(command.substring(9, idx).toInt(), command.substring(idx + 1).toInt());
+			//this->setAlarm(command.substring(9, idx).toInt(), command.substring(idx + 1).toInt());
+			this->setAlarm(command.substring(9, 10).toInt(), command.substring(11, 12).toInt(), command.substring(13, idx).toInt(), command.substring(idx + 1).toInt());
 		}
 		else if (command == "getTime") {
 			this->sendTime();
@@ -147,15 +153,19 @@ void Config::sendTime() {
 }
 
 void Config::sendAlarm() {
-	this->sendData(String("alarm:") + String(this->alarmH) + ":" + String(this->alarmM));
+	this->sendData(String("alarm:") + String(this->alarmEnabled) + ":" + String(this->alarmMelody) + ":" + String(this->alarmH) + ":" + String(this->alarmM));
 }
 
-void Config::setAlarm(uint8_t hour, uint8_t minute) {
+void Config::setAlarm(bool enable, uint8_t melody, uint8_t hour, uint8_t minute) {
 	this->alarmH = hour;
 	this->alarmM = minute;
+	this->alarmMelody = melody;
+	this->alarmEnabled = enable;
 
 	EEPROM.write(ALARM_H_EEPROM, this->alarmH);
 	EEPROM.write(ALARM_M_EEPROM, this->alarmM);
+	EEPROM.write(ALARM_ENABLED, this->alarmEnabled);
+	EEPROM.write(ALARM_MELODY, this->alarmMelody);
 
 	this->sendAlarm();
 }

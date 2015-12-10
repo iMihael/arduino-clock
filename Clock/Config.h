@@ -11,19 +11,22 @@
 class Config {
 private:
 	bool alarm;
+	bool alarmEnabled;
 	uint16_t alarmStart;
+	uint8_t alarmH;
+	uint8_t alarmM;
+	uint8_t alarmMelody;
 
 	bool beep;
 	uint8_t beepStart;
 	uint8_t beepEnd;
-	uint8_t alarmH;
-	uint8_t alarmM;
+	
 	String command;
 
 	void parseSerial(char c);
 	void sendData(String str, bool newLine = true);
 
-	void setAlarm(uint8_t hour, uint8_t minute);
+	void setAlarm(bool enable, uint8_t melody, uint8_t hour, uint8_t minute);
 	void sendAlarm();
 	void sendTime();
 	void setTime(uint8_t hour, uint8_t minute);
@@ -46,6 +49,8 @@ public:
 #define BEEP_EEPROM 2
 #define BEEP_START 3
 #define BEEP_END 4
+#define ALARM_ENABLED 5
+#define ALARM_MELODY 6
 
 
 #endif

@@ -101,9 +101,9 @@ void Digit::beep() {
 	tone(5, 1000, 400);
 }
 
-bool Digit::playMelody() {
+bool Digit::playMelody(uint8_t n) {
 
-	int i = 1;
+	int i = n;
 	for (int thisNote = 0; thisNote < 84; thisNote++) {
 		if (digitalRead(6)) {
 			return true;

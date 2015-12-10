@@ -28,7 +28,7 @@ public:
 	~Digit();
 	void setNum(int digit, int num);
 	void setTime(int h, int m);
-	bool playMelody();
+	bool playMelody(uint8_t n);
 	void blink(uint8_t second);
 	void beep();
 };

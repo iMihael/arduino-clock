@@ -76,7 +76,7 @@ void Digit::setNum(int digit, int num) {
 }
 
 void Digit::blink(uint8_t second) {
-	this->sr->set(13, second % 3);
+	this->sr->set(13, second % 2);
 }
 
 void Digit::setTime(int h, int m) {

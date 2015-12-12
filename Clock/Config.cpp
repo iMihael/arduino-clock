@@ -2,8 +2,12 @@
 #include <EEPROM.h>
 Config::Config() {
 
+
+	this->lastMinute = 60;
+
 	this->alarm = false;
 	this->alarmStart = 0;
+
 
 	this->alarmH = EEPROM.read(ALARM_H_EEPROM);
 	this->alarmM = EEPROM.read(ALARM_M_EEPROM);
@@ -32,11 +36,16 @@ void Config::worker() {
 
 	//TODO: implement interval half minute for this action
 	Time t = this->rtc->getTime();
-	this->d.setTime(t.hour, t.min);
 
-
-	//uint16_t unix = this->rtc->getUnixTime(t);
-	//Serial.println(unix);
+	if (digitalRead(6)) {
+		this->d.setTime(this->alarmH, this->alarmM);
+	}
+	else {
+		if (lastMinute != t.min) {
+			this->d.setTime(t.hour, t.min);
+			lastMinute = t.min;
+		}
+	}
 
 	d.blink(t.sec);
 	
@@ -65,7 +74,7 @@ void Config::worker() {
 		}
 	}
 
-	if (this->beep && t.min == 0 && t.hour >= this->beepStart && t.hour <= this->beepEnd) {
+	if (this->beep && t.min == 0 && t.hour >= this->beepStart && t.hour <= this->beepEnd && !((t.hour == this->alarmH && t.min == this->alarmM))) {
 		d.beep();
 		//TODO: fix this bug
 		delay(75000);

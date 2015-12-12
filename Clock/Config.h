@@ -36,6 +36,8 @@ private:
 	Digit d;
 	DS3231 * rtc;
 
+	uint8_t lastMinute;
+
 public:
 	SoftwareSerial * bt;// (8, 9); // RX, TX
 	Config();

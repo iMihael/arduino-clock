@@ -15,6 +15,12 @@ Config c;
 void setup() {
 	pinMode(6, INPUT);
 	Serial.begin(9600);
+
+	//implement brightnes modes
+	pinMode(10, OUTPUT);
+	//analogWrite(10, 0);
+	digitalWrite(10, 0);
+
 }
 
 void loop() {
